@@ -82,5 +82,5 @@ void loop(void)
   }
 
   Serial.println(F(""));
-  delay(1000);
+  delay(.1);
 }
