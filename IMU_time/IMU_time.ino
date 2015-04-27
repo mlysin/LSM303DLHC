@@ -1,8 +1,11 @@
+// Master IMU template
+// As of 04/27/2015, no DR math (see IMU_getv)
+
 #include <Time.h>  /*http://forum.arduino.cc/index.php?topic=100084.0*/
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_L3GD20_U.h> //Gyroscope
-#include <Adafruit_LSM303_U.h> //Magnometer
+#include <Adafruit_LSM303_U.h> //Magnometer, Accelerometer
 
 #define TIME_MSG_LEN  11   // time sync to PC is HEADER followed by Unix time_t as ten ASCII digits
 #define TIME_HEADER  'T'   // Header tag for serial time sync message
@@ -57,9 +60,10 @@ void displaySensorDetails(void) {
 
 void setup()  {
   Serial.begin(9600);
-  Serial.println("Testing Gyroscope"); Serial.println("");
+  Serial.println("Testing Gyroscope ...");
   /* Enable auto-ranging */
   gyro.enableAutoRange(true);
+  
   /* Initialise the sensor */
   if(!gyro.begin())
   {
@@ -67,9 +71,13 @@ void setup()  {
     Serial.println("Ooops, no L3GD20 detected ... Check your wiring!");
     while(1);
   }
+  else {
+    Serial.println("Gyroscope (L3GD20) signal detected ");
+    Serial.println("");
+  }
   /* Display some basic information on this sensor */
   
-  Serial.println("Testing Magnetometer"); Serial.println("");
+  Serial.println("Testing Magnetometer ...");
   //mag.enableAutoRange(true);
   if(!mag.begin())
   {
@@ -77,8 +85,12 @@ void setup()  {
     Serial.println("Ooops, no LSM303 detected ... Check your wiring!");
     while(1);
   }
+  else {
+    Serial.println("Magnetometer (LSM303) signal detected ");
+    Serial.println("");
+  }
   
-  Serial.println("Testing Accelerometer"); Serial.println("");
+  Serial.println("Testing Accelerometer ...");
   //mag.enableAutoRange(true);
   if(!accel.begin())
   {
@@ -86,47 +98,11 @@ void setup()  {
     Serial.println("Ooops, no LSM303 detected ... Check your wiring!");
     while(1);
   }
-  displaySensorDetails();
-}
-
-void loop(){ 
-   /* Get a new sensor event */ 
-  sensors_event_t event;  
- 
-  /* Display the results (speed is measured in rad/s) */
-  gyro.getEvent(&event);
-  Serial.print("Angular Velocity:        ");
-  Serial.print("X: "); Serial.print(event.gyro.x); Serial.print("  ");
-  Serial.print("Y: "); Serial.print(event.gyro.y); Serial.print("  ");
-  Serial.print("Z: "); Serial.print(event.gyro.z); Serial.print("  ");
-  Serial.println("rad/s ");
-  
-  /* Display the results (magnetic vector values are in micro-Tesla (uT)) */
-  mag.getEvent(&event);
-  Serial.print("Magnetic Orientation:    ");
-  Serial.print("X: "); Serial.print(event.magnetic.x); Serial.print("  ");
-  Serial.print("Y: "); Serial.print(event.magnetic.y); Serial.print("  ");
-  Serial.print("Z: "); Serial.print(event.magnetic.z); Serial.print("  ");Serial.println("uT");
-  
-  /* Display the results (acceleration is measured in m/s^2) */
-  accel.getEvent(&event);
-  Serial.print("Acceleration:            ");
-  Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print("  ");
-  Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print("  ");
-  Serial.print("Z: "); Serial.print(event.acceleration.z); Serial.print("  ");Serial.println("m/s^2 ");
-  Serial.println("");
-  delay(500);
-
-  
-  if(Serial.available() ) 
-  {
-    processSyncMessage();
+  else {
+    Serial.println("Accelerometer (LSM303) signal detected ");
+    Serial.println("");
   }
-  if(timeStatus()!= timeNotSet) 
-    Serial.println("waiting for sync message");
-  else     
-      digitalClockDisplay();  
-  delay(1000);
+  displaySensorDetails();
 }
 
 void digitalClockDisplay(){
@@ -142,6 +118,47 @@ void digitalClockDisplay(){
   Serial.print(" ");
   Serial.print(year()); */
   Serial.println(); 
+}
+
+void loop(){ 
+   /* Get a new sensor event */ 
+  sensors_event_t event;  
+ 
+  digitalClockDisplay();
+  /* Display the results (speed is measured in rad/s) */
+  gyro.getEvent(&event);
+  Serial.print("Angular Velocity:        ");
+  Serial.print("X: "); Serial.print(event.gyro.x); Serial.print("    ");
+  Serial.print("Y: "); Serial.print(event.gyro.y); Serial.print("    ");
+  Serial.print("Z: "); Serial.print(event.gyro.z); Serial.print("    ");
+  Serial.println("rad/s ");
+  
+  /* Display the results (magnetic vector values are in micro-Tesla (uT)) */
+  mag.getEvent(&event);
+  Serial.print("Magnetic Orientation:    ");
+  Serial.print("X: "); Serial.print(event.magnetic.x); Serial.print("    ");
+  Serial.print("Y: "); Serial.print(event.magnetic.y); Serial.print("    ");
+  Serial.print("Z: "); Serial.print(event.magnetic.z); Serial.print("    ");Serial.println("uT");
+  
+  /* Display the results (acceleration is measured in m/s^2) */
+  accel.getEvent(&event);
+  Serial.print("Acceleration:            ");
+  Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print("    ");
+  Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print("    ");
+  Serial.print("Z: "); Serial.print(event.acceleration.z); Serial.print("    ");Serial.println("m/s^2 ");
+  Serial.println("");
+  delay(500);
+
+  
+  if(Serial.available() ) 
+  {
+    processSyncMessage();
+  }
+  if(timeStatus()!= timeNotSet) 
+    Serial.println("waiting for sync message");
+  else     
+      //digitalClockDisplay();
+  delay(500);
 }
 
 void printDigits(int digits){

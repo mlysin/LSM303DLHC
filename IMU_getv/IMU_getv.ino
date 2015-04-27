@@ -1,7 +1,7 @@
 // Deriving velocity, distance traveled from acceleration values
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
-#include <Adafruit_LSM303_U.h> //Magnometer
+#include <Adafruit_LSM303_U.h> //Magnometer, Accelerometer
 
 #include <Time.h>  
 #define TIME_MSG_LEN  11   // time sync to PC is HEADER followed by Unix time_t as ten ASCII digits
@@ -16,10 +16,21 @@ void displaySensorDetails(void) {
   
   sensor_t sensor;
   accel.getSensor(&sensor);
-  
-  Serial.println("Accelerometer test: deriving velocity and distance travelled");
+  Serial.println("Velocity, distance derivation test program");
+  Serial.print  ("Max Value:    "); Serial.print(sensor.max_value); Serial.println(" m/s^2");
+  Serial.print  ("Min Value:    "); Serial.print(sensor.min_value); Serial.println(" m/s^2");
   
   delay(1000);
+}
+
+
+void clock(){
+  // digital clock display of the time
+  Serial.print("Time Lapsed: ");
+  Serial.print(hour());
+  printDigits(minute());
+  printDigits(second());
+  Serial.println(); 
 }
 
 void setup() {
@@ -31,8 +42,9 @@ void setup() {
     Serial.println("LSM303 not detected. Cannot read acceleration values.");
     while(1);
   }
-  displaySensorDetails();
-
+  else{
+    displaySensorDetails();
+  }
 }
 
 void loop() {
@@ -53,15 +65,10 @@ void loop() {
   Serial.print("Y: "); Serial.print("  ");
   Serial.print("Z: "); Serial.print("  "); Serial.println("m/s ");
   
+  clock();
   //Serial.print(accelmax);
   //Serial.print(accelmin);
-  
-  Serial.print(hour());
-  printDigits(minute());
-  printDigits(second());
-  Serial.println(); 
-  delay(1000);
-  
+  delay(500);  
   Serial.println("");
   
 }
