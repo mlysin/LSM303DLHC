@@ -12,30 +12,10 @@
 // Assign unique ID to accelerometer
 Adafruit_LSM303_Accel_Unified accel  =   Adafruit_LSM303_Accel_Unified(54321);
 
-void displaySensorDetails(void) {
-  
-  sensor_t sensor;
-  accel.getSensor(&sensor);
-  Serial.println("Velocity, distance derivation test program");
-  Serial.print  ("Max Value:    "); Serial.print(sensor.max_value); Serial.println(" m/s^2");
-  Serial.print  ("Min Value:    "); Serial.print(sensor.min_value); Serial.println(" m/s^2");
-  
-  delay(1000);
-}
-
-
-void clock(){
-  // digital clock display of the time
-  Serial.print("Time Lapsed: ");
-  Serial.print(hour());
-  printDigits(minute());
-  printDigits(second());
-  Serial.println(); 
-}
-
-void setup() {
+void setup() { //possible callibration period
   Serial.begin(9600);
-  Serial.println("Testing accelerometer ");
+  Serial.println("Velocity, distance derivation test program");
+  Serial.println("Testing accelerometer ...");
   
   if(!accel.begin())
   {
@@ -43,7 +23,7 @@ void setup() {
     while(1);
   }
   else{
-    displaySensorDetails();
+    sensorDetails();
   }
 }
 
@@ -54,24 +34,47 @@ void loop() {
   //int accelmax = event.max_value; DOESNT WORK
   //int accelmin = sensor.min_value;
 
-  
   accel.getEvent(&event);
+  
+  clock();
   Serial.print("Acceleration: ");
   Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print("  ");
   Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print("  ");
   Serial.print("Z: "); Serial.print(event.acceleration.z); Serial.print("  ");Serial.println("m/s^2 ");
+  sensorDetails();
   Serial.print("Velocity:     ");
   Serial.print("X: "); //Serial.print(event.velocity.x); Serial.print("  ");
   Serial.print("Y: "); Serial.print("  ");
   Serial.print("Z: "); Serial.print("  "); Serial.println("m/s ");
+  Serial.print("Distance:     ");
+  Serial.print("X: "); //Serial.print(event.distance.x); Serial.print("  ");
+  Serial.print("Y: "); Serial.print("  ");
+  Serial.print("Z: "); Serial.print("  "); Serial.println("m/s ");
   
-  clock();
-  //Serial.print(accelmax);
-  //Serial.print(accelmin);
   delay(500);  
-  Serial.println("");
+  Serial.println(" ");
   
 }
+
+void sensorDetails(void) {
+  sensor_t sensor;
+  accel.getSensor(&sensor);
+  Serial.print  ("Max Value:    "); Serial.print(sensor.max_value); Serial.println(" m/s^2");
+  Serial.print  ("Min Value:    "); Serial.print(sensor.min_value); Serial.println(" m/s^2");
+  delay(500);
+}
+
+
+void clock(){
+  // digital clock display of the time
+  Serial.print("Time Lapsed: "); Serial.print("  ");
+  Serial.print(hour());
+  printDigits(minute());
+  printDigits(second());
+  Serial.println(); 
+}
+
+
 
 void printDigits(int digits){
   // utility function for digital clock display: prints preceding colon and leading 0
@@ -81,6 +84,7 @@ void printDigits(int digits){
   Serial.print(digits);
 }
 
+/*
 void processSyncMessage() {
   // if time sync available from serial port, update time and return true
   while(Serial.available() >=  TIME_MSG_LEN ){  // time message consists of header & 10 ASCII digits
@@ -98,3 +102,4 @@ void processSyncMessage() {
     }  
   }
 }
+*/
